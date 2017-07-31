@@ -21,9 +21,9 @@ rq worker default
 
 ### Step 1: Upload the data set
 
-# Open index.html (directly from the file in /app)
-# Upload the test CSV file in /uploads (this will be uploaded to the same location, but with a new dataset_id)
-# Note the dataset_id in the response
+1 Open index.html (directly from the file in /app)
+1 Upload the test CSV file in /uploads (this will be uploaded to the same location, but with a new dataset_id)
+1 Note the dataset_id in the response
 
 Now we can run through the sequence of steps to preprocess the data, create the neural network, and train it.
 
@@ -34,9 +34,9 @@ POST: http://127.0.0.1:5000/api/data/preprocessing
 ```
 ```json
 {
-	"dataset_id": "{dataset_id}",
-	"features_to_remove": [0, 1, 2],
-	"features_to_extract": [4, 5]
+  "dataset_id": "{dataset_id}",
+  "features_to_remove": [0, 1, 2],
+  "features_to_extract": [4, 5]
 }
 ```
 
@@ -47,9 +47,9 @@ POST: http://127.0.0.1:5000/api/data/nn
 ```
 ```json
 {
-	"dataset_id": "{dataset_id}",
-	"additional_hidden_layers": 1,
-	"include_dropouts": True
+  "dataset_id": "{dataset_id}",
+  "additional_hidden_layers": 1,
+  "include_dropouts": true
 }
 ```
 
@@ -60,7 +60,7 @@ POST: http://127.0.0.1:5000/api/data/training
 ```
 ```json
 {
-	"dataset_id": "{dataset_id}",
+  "dataset_id": "{dataset_id}",
 }
 ```
 
