@@ -1,9 +1,9 @@
-# dot_platform
+# DOT Platform
 A platform for building various neural networks without writing any code.
 
 ## Pre-requisites
 
-Redis
+* Redis
 
 ## Running
 
@@ -21,9 +21,9 @@ rq worker default
 
 ### Step 1: Upload the data set
 
-1 Open index.html (directly from the file in /app)
-1 Upload the test CSV file in /uploads (this will be uploaded to the same location, but with a new dataset_id)
-1 Note the dataset_id in the response
+1. Open index.html (directly from the file in /app)
+1. Upload the test CSV file in /uploads (this will be uploaded to the same location, but with a new dataset_id)
+1. Note the dataset_id in the response
 
 Now we can run through the sequence of steps to preprocess the data, create the neural network, and train it.
 
