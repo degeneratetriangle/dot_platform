@@ -1,6 +1,7 @@
 import pandas as pd
 import storage
 import numpy as np
+import re
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -97,6 +98,60 @@ Split the data into training and validation sets (~ 80/20 split) and returns X a
 """
 def get_training_and_validation_sets(X, y):
     return train_test_split(X, y, test_size=0.2, random_state=0)
+
+
+def get_uploaded_data(dataset_id):
+    # Read the uploaded CSV data set into memory
+    dataset = read_data(file_path='uploads/' + dataset_id + '.csv')
+
+    # Get the names of the columns
+    columns = list(dataset.columns.values)
+
+    formatted_columns = []
+    column_counter = 0
+
+    # Generate the columns in the appropriate format
+    for column in columns:
+        key = clean_column_name(key=column)
+        name = '(' + str(column_counter) + ') ' + column
+        formatted_columns.append({'key': key, 'name': name})
+        column_counter = column_counter + 1
+
+    # Get the data for the columns and apply the appropriate key
+    data = dataset.iloc[:, :].values
+    rows = data.shape[0]
+    row_counter = 0
+    formatted_data = []
+
+    # If the data has more than 100 rows, we cap it at 100
+    if rows > 100:
+        rows = 100
+
+    # Go through all of the entries in the array
+    while row_counter < rows:
+        column_index = 0
+        row = {}
+
+        while column_index < column_counter:
+            key = formatted_columns[column_index]['key']
+            value = data[row_counter, column_index]
+
+            row[key] = value
+
+            column_index = column_index + 1
+
+        formatted_data.append(row)
+
+        row_counter = row_counter + 1
+
+    # Put all of the data together for the response
+    result = {'columns': formatted_columns, 'data': formatted_data}
+
+    return json.dumps(result)
+
+
+def clean_column_name(key):
+    return re.sub(r'\W+', '', key).lower()
 
 
 """

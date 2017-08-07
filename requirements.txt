@@ -1,8 +1,11 @@
 flask
 flask_restful
 flask-uploads
+flask-jsonpify
+flask_cors
 sklearn
 pandas
+tensorflow
 keras
 redis
 rq

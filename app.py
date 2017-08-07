@@ -2,14 +2,16 @@ import preprocessing
 import classification
 import uuid
 from error_utils import InvalidUsage
-from flask import Flask, request
+from flask import Flask, request, Response
 from flask_uploads import UploadSet, configure_uploads, DATA, UploadNotAllowed
 from flask_jsonpify import json, jsonify
+from flask_cors import CORS, cross_origin
 
 
 # application
 app = Flask(__name__)
 app.config['UPLOADED_DATA_DEST'] = 'uploads'
+CORS(app)
 
 
 # uploads
@@ -25,7 +27,7 @@ def handle_invalid_usage(error):
 
 
 """
-Step 1: Upload the CSV containing the data that will be used to train the artificial neural network. This API will
+Step 1a: Upload the CSV containing the data that will be used to train the artificial neural network. This API will
 return a unique identifier for the uploaded file. This identifier should be used when referencing the uploaded data
 as the CSV will not be available directly through the API.
 """
@@ -46,9 +48,29 @@ def api_v0_1_upload_data():
             except UploadNotAllowed:
                 raise InvalidUsage('The upload was not allowed', status_code=500)
 
+    json_response = json.dumps({'success': True, 'dataset_id': dataset_id})
+
     # This method should return a unique identifier for the uploaded data, with no direct link to the data
     # file so the user from this point forward is working with our objects, not raw CSVs, etc
-    return json.dumps({'success': True, 'dataset_id': dataset_id}), 200, {'ContentType': 'application/json'}
+    return Response(response=json_response,
+                    status=200,
+                    mimetype="application/json")
+
+
+"""
+Step 1b: Returns the data that was uploaded in the CSV.
+"""
+@app.route('/api/data/table', methods=['POST'])
+def api_v0_1_table_data():
+    if 'dataset_id' not in request.json or request.json['dataset_id'] is None:
+        raise InvalidUsage('The provided request does not contain a data set identifier. Please provide a'
+                           ' \'dataset_id\' property in the request json associated with a data upload',
+                           status_code=500)
+
+    # Get the uploaded data
+    json_response = preprocessing.get_uploaded_data(dataset_id=request.json['dataset_id'])
+
+    return json_response
 
 
 """
@@ -74,11 +96,11 @@ def api_v0_1_process_data():
         features_to_extract = request.json['features_to_extract']
 
     # Perform the standard pre-processing algorithm
-    json = preprocessing.execute(dataset_id=request.json['dataset_id'],
-                                 features_to_remove=features_to_remove,
-                                 features_to_extract=features_to_extract)
+    json_response = preprocessing.execute(dataset_id=request.json['dataset_id'],
+                                          features_to_remove=features_to_remove,
+                                          features_to_extract=features_to_extract)
 
-    return json
+    return json_response
 
 
 """
@@ -103,11 +125,11 @@ def api_v0_1_nn():
         include_dropouts = request.json['include_dropouts']
 
     # Perform the standard pre-processing algorithm
-    json = classification.build(dataset_id=request.json['dataset_id'],
-                                additional_hidden_layers=additional_hidden_layers,
-                                include_dropouts=include_dropouts)
+    json_response = classification.build(dataset_id=request.json['dataset_id'],
+                                         additional_hidden_layers=additional_hidden_layers,
+                                         include_dropouts=include_dropouts)
 
-    return json
+    return json_response
 
 
 """
@@ -122,12 +144,13 @@ def api_v0_1_training():
                            status_code=500)
 
     # Kick off the training on the moel for this data set
-    json = classification.fit(dataset_id=request.json['dataset_id'],
-                              batch_size=10,
-                              epochs=100)
+    json_response = classification.fit(dataset_id=request.json['dataset_id'],
+                                       batch_size=10,
+                                       epochs=100)
 
-    return json
+    return json_response
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    #app.run(host='0.0.0.0', port=80)
+    app.run()
