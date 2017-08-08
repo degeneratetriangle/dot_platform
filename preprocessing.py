@@ -114,7 +114,7 @@ def get_uploaded_data(dataset_id):
     for column in columns:
         key = clean_column_name(key=column)
         name = '(' + str(column_counter) + ') ' + column
-        formatted_columns.append({'key': key, 'name': name})
+        formatted_columns.append({'key': key, 'label': name})
         column_counter = column_counter + 1
 
     # Get the data for the columns and apply the appropriate key
@@ -123,9 +123,9 @@ def get_uploaded_data(dataset_id):
     row_counter = 0
     formatted_data = []
 
-    # If the data has more than 100 rows, we cap it at 100
-    if rows > 100:
-        rows = 100
+    # If the data has more than 10 rows, we cap it at 10
+    if rows > 10:
+        rows = 10
 
     # Go through all of the entries in the array
     while row_counter < rows:
